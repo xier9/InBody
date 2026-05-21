@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f2ea">
+    <title>InBody 健康紀錄</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="phone-shell">
+      <header class="top-bar">
+        <div>
+          <p class="eyebrow">Health Log</p>
+          <h1>InBody</h1>
+        </div>
+        <button class="icon-button" id="exportButton" type="button" aria-label="匯出紀錄">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/>
+          </svg>
+        </button>
+      </header>
+
+      <section class="summary-panel" aria-live="polite">
+        <div class="summary-copy">
+          <span id="recordCount">0 筆紀錄</span>
+          <strong id="latestWeight">-- kg</strong>
+          <small id="latestMeta">尚未建立紀錄</small>
+        </div>
+        <div class="mini-body" aria-hidden="true">
+          <div class="body-head"></div>
+          <div class="body-core"></div>
+          <div class="body-limb limb-left"></div>
+          <div class="body-limb limb-right"></div>
+          <div class="body-leg leg-left"></div>
+          <div class="body-leg leg-right"></div>
+        </div>
+      </section>
+
+      <nav class="tab-bar" aria-label="主要功能">
+        <button class="tab active" type="button" data-view="entryView">紀錄</button>
+        <button class="tab" type="button" data-view="compareView">比較</button>
+        <button class="tab" type="button" data-view="trendView">趨勢</button>
+      </nav>
+
+      <section class="view active" id="entryView">
+        <form id="entryForm" class="entry-form">
+          <input type="hidden" id="recordId">
+          <div class="form-card date-card">
+            <label for="recordDate">測量日期</label>
+            <input id="recordDate" name="date" type="date" required>
+          </div>
+
+          <div class="metric-group" id="metricInputs"></div>
+
+          <div class="form-actions">
+            <button class="ghost-button" id="sampleButton" type="button">填入範例</button>
+            <button class="primary-button" id="saveButton" type="submit">儲存</button>
+          </div>
+        </form>
+
+        <section class="records-section">
+          <div class="section-heading">
+            <h2>近期紀錄</h2>
+            <button class="text-button" id="clearFormButton" type="button">清空</button>
+          </div>
+          <div class="record-list" id="recordList"></div>
+        </section>
+      </section>
+
+      <section class="view" id="compareView">
+        <div class="compare-controls">
+          <label>
+            <span>基準</span>
+            <select id="baseSelect"></select>
+          </label>
+          <label>
+            <span>目前</span>
+            <select id="targetSelect"></select>
+          </label>
+        </div>
+        <div class="delta-overview" id="deltaOverview"></div>
+        <div class="comparison-grid" id="comparisonGrid"></div>
+      </section>
+
+      <section class="view" id="trendView">
+        <div class="chart-panel">
+          <div class="section-heading">
+            <h2>起伏圖</h2>
+            <select id="trendMetricSelect" aria-label="選擇趨勢項目"></select>
+          </div>
+          <div class="chart-wrap">
+            <svg id="trendChart" role="img" aria-label="InBody 趨勢圖"></svg>
+          </div>
+        </div>
+        <div class="trend-stats" id="trendStats"></div>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <template id="recordTemplate">
+      <article class="record-card">
+        <button class="record-main" type="button">
+          <span class="record-date"></span>
+          <strong class="record-weight"></strong>
+          <small class="record-detail"></small>
+        </button>
+        <div class="record-actions">
+          <button class="icon-button small edit-record" type="button" aria-label="編輯紀錄">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m14 5 5 5M4 20l5-1 10-10-4-4L5 15l-1 5Z"/>
+            </svg>
+          </button>
+          <button class="icon-button small delete-record" type="button" aria-label="刪除紀錄">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
