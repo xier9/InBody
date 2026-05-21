@@ -53,7 +53,9 @@ button {
 .record-card,
 .compare-controls,
 .delta-overview,
-.trend-stats {
+.trend-stats,
+.backup-panel,
+.backup-button {
   display: flex;
   align-items: center;
 }
@@ -127,6 +129,35 @@ h2 {
   border-radius: 8px;
   background: linear-gradient(135deg, #ffffff 0%, #eef7f0 58%, #f7e7d2 100%);
   box-shadow: var(--shadow);
+}
+
+.backup-panel {
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.backup-button {
+  flex: 1;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.88);
+  font-weight: 750;
+  box-shadow: 0 8px 18px rgba(44, 51, 46, 0.08);
+  cursor: pointer;
+}
+
+.backup-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .summary-copy {

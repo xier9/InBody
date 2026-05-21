@@ -38,6 +38,22 @@
         </div>
       </section>
 
+      <section class="backup-panel" aria-label="資料備份">
+        <button class="backup-button" id="importButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 21V10m0 0 4 4m-4-4-4 4M5 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>匯入資料</span>
+        </button>
+        <button class="backup-button" id="backupExportButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/>
+          </svg>
+          <span>匯出資料</span>
+        </button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+      </section>
+
       <nav class="tab-bar" aria-label="主要功能">
         <button class="tab active" type="button" data-view="entryView">紀錄</button>
         <button class="tab" type="button" data-view="compareView">比較</button>

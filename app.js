@@ -35,6 +35,7 @@ const trendMetricSelect = $("#trendMetricSelect");
 const trendChart = $("#trendChart");
 const trendStats = $("#trendStats");
 const toast = $("#toast");
+const importFile = $("#importFile");
 
 function todayString() {
   const date = new Date();
@@ -78,6 +79,77 @@ function saveRecords() {
 
 function sortedRecords() {
   return [...state.records].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function exportPayload() {
+  return {
+    app: "InBody 健康紀錄",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    records: sortedRecords(),
+  };
+}
+
+function downloadTextFile(filename, text) {
+  const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function normalizeImportedRecord(item) {
+  if (!item || typeof item !== "object") return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(item.date || ""))) return null;
+
+  const record = {
+    id: typeof item.id === "string" && item.id ? item.id : crypto.randomUUID(),
+    date: item.date,
+  };
+
+  for (const metric of metrics) {
+    const value = Number(item[metric.key]);
+    if (!Number.isFinite(value) || value < 0) return null;
+    record[metric.key] = value;
+  }
+
+  return record;
+}
+
+function importRecords(rawText) {
+  const parsed = JSON.parse(rawText);
+  const incoming = Array.isArray(parsed) ? parsed : parsed.records;
+  if (!Array.isArray(incoming)) {
+    throw new Error("unsupported-format");
+  }
+
+  const normalized = incoming.map(normalizeImportedRecord).filter(Boolean);
+  if (!normalized.length) {
+    throw new Error("no-valid-records");
+  }
+
+  let added = 0;
+  let updated = 0;
+  normalized.forEach((record) => {
+    const sameDateIndex = state.records.findIndex((item) => item.date === record.date);
+    if (sameDateIndex >= 0) {
+      record.id = state.records[sameDateIndex].id;
+      state.records[sameDateIndex] = record;
+      updated += 1;
+    } else {
+      state.records.push(record);
+      added += 1;
+    }
+  });
+
+  saveRecords();
+  resetForm();
+  renderAll();
+  return { added, updated, skipped: incoming.length - normalized.length };
 }
 
 function createMetricInputs() {
@@ -340,24 +412,36 @@ $("#sampleButton").addEventListener("click", () => {
 
 $("#clearFormButton").addEventListener("click", resetForm);
 
-$("#exportButton").addEventListener("click", async () => {
+function exportRecords() {
   if (!state.records.length) {
     showToast("目前沒有可匯出的紀錄");
     return;
   }
 
-  const payload = JSON.stringify(sortedRecords(), null, 2);
+  const payload = JSON.stringify(exportPayload(), null, 2);
+  downloadTextFile(`inbody-records-${todayString()}.json`, payload);
+  showToast("備份檔已匯出");
+}
+
+$("#exportButton").addEventListener("click", exportRecords);
+$("#backupExportButton").addEventListener("click", exportRecords);
+
+$("#importButton").addEventListener("click", () => {
+  importFile.click();
+});
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files[0];
+  importFile.value = "";
+  if (!file) return;
+
   try {
-    await navigator.clipboard.writeText(payload);
-    showToast("JSON 已複製");
+    const result = importRecords(await file.text());
+    const parts = [`新增 ${result.added} 筆`, `更新 ${result.updated} 筆`];
+    if (result.skipped) parts.push(`略過 ${result.skipped} 筆`);
+    showToast(parts.join("，"));
   } catch {
-    const blob = new Blob([payload], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "inbody-records.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    showToast("匯入失敗，請選擇有效的 JSON 備份檔");
   }
 });
 
